@@ -1,0 +1,74 @@
+Commander API
+The Commander API is straight forward and the documentation is great.
+There are 3 basic ways we can write our program:
+METHOD #1: Flag-only command-line application
+const program = require('commander');
+program
+  .version('0.0.1')
+  .option('-o, --option','option description')
+  .option('-m, --more','we can have as many options as we want')
+  .option('-i, --input [optional]','optional user input')
+  .option('-I, --another-input <required>','required user input')
+  .parse(process.argv); // end with parse to parse through the input
+Note:
+•The short-hand and long-hand options are in the same string (see the bold text in the image above)
+•-o and -m will return boolean values when users pass them because we didn’t specify any optional or required user input.
+•-i and -I will capture user input and pass the values to our CLI app.
+•Any value enclosed in square brackets (e.g. [ ] ) is considered optional. User may or may not provide a value.
+•Any value enclosed in angled brackets (e.g. < > ) is considered required. User must provide a value.
+The example above allows us to implement a flag-only approach to our CLI app. Users will be expected to interact with our app like so:
+//Examples:
+$ cli-app -om -I hello
+$ cli-app --option -i optionalValue -I requiredValue
+METHOD #2: Sub-command and flag-based command-line application
+const program = require('commander');
+program
+  .version('0.0.1')
+  .command('command <req> [optional]')
+  .description('command description')
+  .option('-o, --option','we can still have add'l options')
+  .action(function(req,optional){
+    console.log('.action() allows us to implement the command');
+    console.log('User passed %s', req);
+    if (optional) {
+      optional.forEach(function(opt){
+        console.log("User passed optional arguments: %s", opt);
+      });
+    }
+  });
+program.parse(process.argv); // notice that we have to parse in a new statement.
+Note:
+•If we utilize .command(‘command…’).description(‘description…’), we must utilize .action() to pass a function and execute our code based on the user’s input. (I point this out because there is an alternative method to utilize .command() that we’ll explore next.)
+•If we utilize .command(‘command…’), we can no longer just tack on .parse(process.argv) at the end like we did in the previous example. We have to pass parse() in a new statement
+Users are expected to interact with our CLI app like so:
+//Example: 
+$ cli-app command requiredValue -o
+METHOD #3: Same as METHOD #2 above, but allows for modularized code
+Finally, we don’t have to bloat our one JavaScript file with all the .command().description().action() logic. We can modularize our CLI project like so:
+// file: ./cli-app/index.js
+const program = require('commander');
+program
+.version('0.0.1')
+.command('command <req> [optional]','command description')
+.command('command2','command2 description')
+.command('command3','command3 description')
+.parse(process.argv);
+Note:
+•If we utilize .command(‘command’, ‘description’) to pass in the command and the description, we can no longer have .action(). Commander will imply that we have separate files with a specific naming convention where we can handle each command. The naming convention is index-command.js, index-command2.js, index-command3.js. See examples of this on Github (specifically: pm, pm-install, pm-publish files).
+•If we take this route, we can just tack on .parse() at the end.
+
+Another example:
+#!/usr/bin/env node
+
+	var program = require('commander');
+
+program
+.arguments('<file>')
+.option('-u, --username <username>', 'The user to authenticate as')
+.action(function(file) {
+console.log('File: ' + file + ' username: ' + program.username);
+})
+.parse(process.argv);
+if (!program.args.length) {
+	program.help();
+}

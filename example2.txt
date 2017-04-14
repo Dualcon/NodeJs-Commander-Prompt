@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+
+program
+.version('1.0.0')
+.option('-p, --path <path>', 'Path for the directory.')
+.option('-t, --tag <tag>', 'Tag to add.')
+.option('-s, --side <side>', 'Choose a side to add the tag [right, left].');
+
+program.command('add')
+.description('command description')
+.action(function() {
+	if (!checkOptions(program)) return;
+	else console.log('TODO: add command.' + ' path: ' + program.path + ' tag: ' + program.tag + ' side: ' + program.side);
+});
+
+program.command('remove')
+.description('command description')
+.action(function() {
+	console.log('TODO: remove command.');
+});
+
+program.parse(process.argv);
+
+function checkOptions(program) {
+	if (!program.path) {
+		console.log('Path not specified.');		
+		return false;
+	} else if (!program.tag) {
+		console.log('Tag not specified.');		
+		return false;
+	} else if (!program.side) {
+		console.log('Side not specified, choose right or left.');
+		return false;
+	} else {
+		return true;
+	}
+}
